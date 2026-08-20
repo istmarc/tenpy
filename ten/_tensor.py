@@ -62,9 +62,9 @@ def _to_numpy_data_type(data_type):
 def _getitem_from(t, index):
     data_type = t.data_type()
     if data_type == tencore.data_type.float32:
-        return tencore.tensor_float_get(t, index)
+        return tencore.tensor_float_get(t, list(index))
     elif data_type == tencore.data_type.float64:
-        return tencore.tensor_double_get(t, index)
+        return tencore.tensor_double_get(t, list(index))
     else:
         raise RuntimeError("Data type not supported.")
 
@@ -91,6 +91,10 @@ class tensor(object):
         self.dims_rank = len(self.dims)
         self.data_type = data_type
         self.t = _get_tensor(data_type, self.dims, sformat, order, data)
+
+    @classmethod
+    def row_major(cls, dims, data_type=dtype.float32, sformat=storage_format.dense):
+        return cls(dims, data_type, sformat, storage_order.row_major)
 
     def dtype(self):
         return self.data_type
