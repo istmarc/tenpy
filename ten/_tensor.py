@@ -12,6 +12,12 @@ from functools import reduce
 import operator
 
 """
+Set random seed
+"""
+def set_seed(value):
+    tencore.set_seed(value)
+
+"""
 Get the tensor type
 """
 
