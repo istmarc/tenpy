@@ -114,7 +114,15 @@ class tensor(object):
                 raise RuntimeError("Data type not supported.")
 
     def __setitem__(self, index, value):
-        self.t.__setitem__(index, value)
+        if isinstance(index, int):
+            self.t.__setitem__(index, value)
+        else:
+            if self.data_type == tencore.data_type.float32:
+                tencore.tensor_float_set(self.t, index, value)
+            elif self.data_type == tencore.data_type.float64:
+                tencore.tensor_double_set(self.t, index, value)
+            else:
+                raise RuntimeError("Data type not supported.")
 
     """
   def __add__(self, other):
