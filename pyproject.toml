@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ten"
+version = "2026.0.1"
+dependencies = [
+  "numpy",
+  "matplotlib"
+]
+requires-python = ">=3.8"
+authors = [
+  {name = "Marc", email = "mailnawman@gmail.com"}
+]
+maintainers = [
+  {name = "Marc", email = "mailnawman@gmail.com"}
+]
+description = "Tensor and mathematical library"
+readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICEN[CS]E.*"]
+keywords = ["maths", "linear-algebra", "tensor", "vector", "matrix"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Programming Language :: Python"
+]
+
+[project.urls]
+Homepage = "https://github.com/istmarc/ten"
+Documentation = "https://readthedocs.org"
+Repository = "https://github.com/istmarc/ten"
+"Bug Tracker" = "https://github.com/istmarc/ten/issues"
+Changelog = "https://github.com/istmarc/ten/blob/master/CHANGELOG.md"
+
