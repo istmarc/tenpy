@@ -14,90 +14,109 @@ import operator
 """
 Get the tensor type
 """
-def _get_tensor(data_type, shape, sformat, order, data = "auto"):
-  if data == None:
-    return None
-  if data != "auto":
-    assert(data_type == data.data_type())
-    # TODO Check rank
-    assert(data.size() == reduce(operator.mul, shape))
-    return data
-  if sformat == storage_format.dense:
-    if data_type == dtype.float32:
-      return tencore.tensor_float.make(shape, sformat, False, order)
-    #elif data_type == dtype.float64:
-    #  return tencore.tensor_double.make(shape, sformat, False, order)
+
+
+def _get_tensor(data_type, shape, sformat, order, data="auto"):
+    if data == None:
+        return None
+    if data != "auto":
+        assert data_type == data.data_type()
+        assert data.size() == reduce(operator.mul, shape)
+        return data
+    if sformat == storage_format.dense:
+        if data_type == dtype.float32:
+            return tencore.tensor_float.make(shape, sformat, False, order)
+        elif data_type == dtype.float64:
+            return tencore.tensor_double.make(shape, sformat, False, order)
+        else:
+            raise RuntimeError("Data type not yet supported.")
     else:
-      raise RuntimeError("Data type not yet supported.")
-  else:
-      raise RuntimeError("Storage format not yet supported.")
+        raise RuntimeError("Storage format not yet supported.")
+
 
 def _make_tuple_shape(dims):
-  if isinstance(dims, int):
-    return tuple([dims])
-  else:
-    return tuple(dims)
+    if isinstance(dims, int):
+        return tuple([dims])
+    else:
+        return tuple(dims)
+
 
 def _from_numpy_data_type(data_type):
-  if data_type == np.float32:
-    return dtype.float32
-  elif data_type == np.float64:
-    return dtype.float64
-  else:
-    raise RuntimeError("Data type not supported.")
+    if data_type == np.float32:
+        return dtype.float32
+    elif data_type == np.float64:
+        return dtype.float64
+    else:
+        raise RuntimeError("Data type not supported.")
+
 
 def _to_numpy_data_type(data_type):
-  if data_type == dtype.float32:
-    return np.float32
-  elif data_type == dtype.float64:
-    return np.float64
-  else:
-    raise RuntimeError("Data type not supported.")
+    if data_type == dtype.float32:
+        return np.float32
+    elif data_type == dtype.float64:
+        return np.float64
+    else:
+        raise RuntimeError("Data type not supported.")
+
 
 """
 Create a tensor from shape (rank), data type, and storage order
 """
+
+
 class tensor(object):
-
-  """
+    """
     tensor(dims,  data_type, data = "auto")
-  """
-  def __init__(self, dims, data_type = dtype.float32, sformat = storage_format.dense, order = storage_order.col_major, data = "auto"):
-    self.dims = _make_tuple_shape(dims)
-    self.dims_rank = len(self.dims)
-    self.data_type = data_type
-    self.t = _get_tensor(data_type, self.dims, sformat, order, data)
+    """
 
-  def dtype(self):
-    return self.data_type
+    def __init__(
+        self,
+        dims,
+        data_type=dtype.float32,
+        sformat=storage_format.dense,
+        order=storage_order.col_major,
+        data="auto",
+    ):
+        self.dims = _make_tuple_shape(dims)
+        self.dims_rank = len(self.dims)
+        self.data_type = data_type
+        self.t = _get_tensor(data_type, self.dims, sformat, order, data)
 
-  def data(self):
-    return self.t
+    def dtype(self):
+        return self.data_type
 
-  def rank(self):
-    return self.dims_rank
+    def data(self):
+        return self.t
 
-  def size(self):
-    return self.t.size()
+    def rank(self):
+        return self.dims_rank
 
-  def shape(self):
-    return self.shape()
+    def size(self):
+        return self.t.size()
 
-  def strides(self):
-    return tuple(self.t.strides())
+    def shape(self):
+        return self.dims
 
-  def __getitem__(self, index):
-    if (isinstance(index, int)):
-      if index >= self.size():
-        raise StopIteration()
-      return self.t[index]
-    else:
-      return self.t[index]
+    def strides(self):
+        return tuple(self.t.strides())
 
-  def __setitem__(self, index, value):
-    self.t.__setitem__(index, value)
+    def __getitem__(self, index):
+        if isinstance(index, int):
+            if index >= self.size():
+                raise StopIteration()
+            return self.t[index]
+        else:
+            if self.data_type == tencore.data_type.float32:
+                return tencore.tensor_float_get(self.t, index)
+            elif self.data_type == tencore.data_type.float64:
+                return tencore.tensor_double_get(self.t, index)
+            else:
+                raise RuntimeError("Data type not supported.")
 
-  """
+    def __setitem__(self, index, value):
+        self.t.__setitem__(index, value)
+
+    """
   def __add__(self, other):
     assert(self.rank() == other.rank())
     assert(self.size() == other.size())
@@ -123,7 +142,7 @@ class tensor(object):
     return repr(self.t)
   """
 
-  """
+    """
   def copy(self):
     return tensor(self.dims, self.data_type, self.t.copy())
 
@@ -178,76 +197,85 @@ class tensor(object):
     return array
     """
 
+
 """
 Create a vector from shape and optional data type
 """
-def vector(size, data_type = dtype.float32):
-  assert(isinstance(size, int))
-  return tensor((size), data_type)
+
+
+def vector(size, data_type=dtype.float32):
+    assert isinstance(size, int)
+    return tensor((size), data_type)
+
 
 """
 Create a matrix from shape and optional data type
 """
-def matrix(rows, cols, data_type = dtype.float32):
-  assert(isinstance(rows, int))
-  assert(isinstance(cols, int))
-  return tensor((rows, cols), data_type)
+
+
+def matrix(rows, cols, data_type=dtype.float32):
+    assert isinstance(rows, int)
+    assert isinstance(cols, int)
+    return tensor((rows, cols), data_type)
+
 
 """
 Create a tensor from a numpy array
 """
+
+
 def from_numpy(array):
-  shape = array.shape
-  data_type = _from_numpy_data_type(array.dtype)
-  t = tensor(shape, data_type)
-  size = t.size()
-  rank = len(shape)
-  if rank == 1:
-    # Vector
-    for k in range(size):
-      t[k] = array[k]
-  elif rank == 2:
-    # Matrix
-    rows = shape[0]
-    cols = shape[1]
-    for i in range(rows):
-      for j in range(cols):
-        t.set(i, j, array[i, j])
-  elif rank == 3:
-    # 3d tensor
-    I = shape[0]
-    J = shape[1]
-    K = shape[2]
-    for i in range(I):
-      for j in range(J):
-        for k in range(K):
-          t.set(i, j, k, array[i, j, k])
-  elif rank == 4:
-    # 4d tensor
-    I = shape[0]
-    J = shape[1]
-    K = shape[2]
-    L = shape[3]
-    for i in range(I):
-      for j in range(J):
-        for k in range(K):
-          for l in range(L):
-            t.set(i, j, k, l, array[i, j, k, l])
-  elif rank == 5:
-    I = shape[0]
-    J = shape[1]
-    K = shape[2]
-    L = shape[3]
-    M = shape[4]
-    for i in range(I):
-      for j in range(J):
-        for k in range(K):
-          for l in range(L):
-            for m in range(M):
-              t.set(i, j, k, l, m, array[i, j, k, l, m])
-  else:
-    raise RuntimeError("Array rank not supported, only up to 5d are supported.")
-  return t
+    shape = array.shape
+    data_type = _from_numpy_data_type(array.dtype)
+    t = tensor(shape, data_type)
+    size = t.size()
+    rank = len(shape)
+    if rank == 1:
+        # Vector
+        for k in range(size):
+            t[k] = array[k]
+    elif rank == 2:
+        # Matrix
+        rows = shape[0]
+        cols = shape[1]
+        for i in range(rows):
+            for j in range(cols):
+                t.set(i, j, array[i, j])
+    elif rank == 3:
+        # 3d tensor
+        I = shape[0]
+        J = shape[1]
+        K = shape[2]
+        for i in range(I):
+            for j in range(J):
+                for k in range(K):
+                    t.set(i, j, k, array[i, j, k])
+    elif rank == 4:
+        # 4d tensor
+        I = shape[0]
+        J = shape[1]
+        K = shape[2]
+        L = shape[3]
+        for i in range(I):
+            for j in range(J):
+                for k in range(K):
+                    for l in range(L):
+                        t.set(i, j, k, l, array[i, j, k, l])
+    elif rank == 5:
+        I = shape[0]
+        J = shape[1]
+        K = shape[2]
+        L = shape[3]
+        M = shape[4]
+        for i in range(I):
+            for j in range(J):
+                for k in range(K):
+                    for l in range(L):
+                        for m in range(M):
+                            t.set(i, j, k, l, m, array[i, j, k, l, m])
+    else:
+        raise RuntimeError("Array rank not supported, only up to 5d are supported.")
+    return t
 
 
 """
@@ -574,4 +602,3 @@ def max(x:tensor):
   else:
     raise RuntimeError(f"Tensor of rank {rank} not supported.")
 """
-
