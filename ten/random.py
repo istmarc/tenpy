@@ -55,10 +55,22 @@ def gamma(alpha, beta, data_type = dtype.float32):
 # Random uniform
 def rand_unif(dims, lower_bound = 0., upper_bound = 1., data_type = dtype.float32,
     order = storage_order.col_major):
+    assert (data_type == dtype.float32 or data_type == dtype.float64)
     if data_type == dtype.float32:
         return tensor(dims, data_type, storage_format.dense, order, tencore.rand_unif_float(dims, lower_bound, upper_bound, order))
     elif data_type == dtype.float64:
         return tensor(dims, data_type, storage_format.dense, order, tencore.rand_unif_double(dims, lower_bound, upper_bound, order))
+    else:
+        raise RuntimeError("Data type not supported.")
+
+# Random normal
+def rand_norm(dims, mean = 0., std = 1., data_type = dtype.float32,
+    order = storage_order.col_major):
+    assert (data_type == dtype.float32 or data_type == dtype.float64)
+    if data_type == dtype.float32:
+        return tensor(dims, data_type, storage_format.dense, order, tencore.rand_norm_float(dims, mean, std, order))
+    elif data_type == dtype.float64:
+        return tensor(dims, data_type, storage_format.dense, order, tencore.rand_norm_double(dims, mean, std, order))
     else:
         raise RuntimeError("Data type not supported.")
 
