@@ -40,6 +40,26 @@ def _get_tensor(data_type, shape, sformat, order, data="auto"):
         raise RuntimeError("Storage format not yet supported.")
 
 
+"""
+Get diagonal matrix
+"""
+
+def _get_diagonal(data_type, shape, order, data="auto"):
+    if data == None:
+        return None
+    if data != "auto":
+        assert data_type == data.data_type()
+        assert data.rank() == 2
+        assert shape[0] == shape[1]
+        assert data.size() == shape[0]
+        return data
+    if data_type == dtype.float32:
+        return tencore.diagonal_float.make(shape, False, order)
+    elif data_type == dtype.float64:
+        return tencore.diagonal_double.make(shape, False, order)
+    else:
+            raise RuntimeError("Data type not yet supported.")
+
 def _make_tuple_shape(dims):
     if isinstance(dims, int):
         return tuple([dims])
@@ -231,6 +251,111 @@ def matrix(rows, cols, data_type=dtype.float32):
     assert isinstance(rows, int)
     assert isinstance(cols, int)
     return tensor((rows, cols), data_type)
+
+"""
+Diagonal matrix
+"""
+class diagonal(object):
+    """
+    diagonal(dims,  data_type, order, data = "auto")
+    """
+
+    def __init__(
+        self,
+        dims,
+        data_type=dtype.float32,
+        order=storage_order.col_major,
+        data="auto",
+    ):
+        self.dims = _make_tuple_shape(dims)
+        self.dims_rank = len(self.dims)
+        assert self.dims_rank == 2
+        self.data_type = data_type
+        self.t = _get_diagonal(data_type, self.dims, order, data)
+
+    @classmethod
+    def row_major(cls, dims, data_type=dtype.float32):
+        return cls(dims, data_type, storage_order.row_major)
+
+    def dtype(self):
+        return self.data_type
+
+    def data(self):
+        return self.t
+
+    def rank(self):
+        return self.dims_rank
+
+    def size(self):
+        return self.t.size()
+
+    def shape(self):
+        return self.dims
+
+    def dim(self, index):
+        return self.t.dim(index)
+
+    def strides(self):
+        return tuple(self.t.strides())
+
+    def format(self):
+        return self.t.format()
+
+    def storage_order(self):
+        return self.t.storage_order()
+
+    def __repr__(self):
+        return repr(self.t)
+
+    def __getitem__(self, index):
+        if isinstance(index, int):
+            if index >= self.size():
+                raise StopIteration()
+            return self.t[index]
+        else:
+            _getitem_from(self.t, index)
+
+    def __setitem__(self, index, value):
+        if isinstance(index, int):
+            self.t.__setitem__(index, value)
+        else:
+            if self.data_type == tencore.data_type.float32:
+                tencore.tensor_float_set(self.t, index, value)
+            elif self.data_type == tencore.data_type.float64:
+                tencore.tensor_double_set(self.t, index, value)
+            else:
+                raise RuntimeError("Data type not supported.")
+
+    """
+    Convert to numpy ndarray
+    By default return a 1d numpy array if dense is set to False,
+    otherwise return a dense numpy array
+    """
+
+    def to_numpy(self, dense = False):
+        np_data_type = _to_numpy_data_type(self.data_type)
+        if dense:
+            # FIXME Uninitialized numpy array
+            array = np.zeros(self.dims, dtype=np_data_type)
+            size = self.t.size()
+            if self.t.storage_order() == storage_order.row_major:
+                for k in range(size):
+                    array[k] = self.t[k]
+            else:
+                # col_major
+                # Matrix
+                rows = self.dim(0)
+                cols = self.dim(1)
+                for i in range(rows):
+                    for j in range(cols):
+                        array[i, j] = _getitem_from(self.t, [i, j])
+        else:
+            n = self.size()
+            array = np.zeros((n), dtype=np_data_type)
+            for k in range(n):
+                array[k] = self.t[k]
+        return array
+
 
 
 """
