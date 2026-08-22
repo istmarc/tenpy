@@ -102,7 +102,7 @@ Create a tensor from shape (rank), data type, and storage order
 
 class tensor(object):
     """
-    tensor(dims,  data_type, data = "auto")
+    tensor(shape,  data_type, storage_format, order, data = "auto")
     """
 
     def __init__(
@@ -118,6 +118,9 @@ class tensor(object):
         self.data_type = data_type
         self.t = _get_tensor(data_type, self.dims, sformat, order, data)
 
+    """
+    row_major(shape, data_type, storage_format)
+    """
     @classmethod
     def row_major(cls, dims, data_type=dtype.float32, sformat=storage_format.dense):
         return cls(dims, data_type, sformat, storage_order.row_major)
@@ -170,6 +173,83 @@ class tensor(object):
                 tencore.tensor_double_set(self.t, index, value)
             else:
                 raise RuntimeError("Data type not supported.")
+
+    def __add__(self, other):
+        data_type = self.dtype()
+        assert(data_type == other.dtype())
+        assert(self.storage_order() == other.storage_order())
+        assert(self.rank() == other.rank())
+        assert(self.shape() == other.shape())
+        if data_type == dtype.float32:
+            return tensor(self.dims, self.dtype(), storage_format.dense, self.storage_order(), tencore.add_float(self.data(), other.data()))
+        elif data_type == dtype.float64:
+            return tensor(self.dims, self.dtype(), storage_format.dense, self.storage_order(), tencore.add_float(self.data(), other.data()))
+        else:
+            raise RuntimeError("Data type not supported.")
+
+    def __sub__(self, other):
+        data_type = self.dtype()
+        assert(data_type == other.dtype())
+        assert(self.storage_order() == other.storage_order())
+        assert(self.rank() == other.rank())
+        assert(self.shape() == other.shape())
+        if data_type == dtype.float32:
+            return tensor(self.dims, self.dtype(), storage_format.dense, self.storage_order(), tencore.sub_float(self.data(), other.data()))
+        elif data_type == dtype.float64:
+            return tensor(self.dims, self.dtype(), storage_format.dense, self.storage_order(), tencore.sub_float(self.data(), other.data()))
+        else:
+            raise RuntimeError("Data type not supported.")
+
+    def __truediv__(self, other):
+        data_type = self.dtype()
+        assert(data_type == other.dtype())
+        assert(self.storage_order() == other.storage_order())
+        assert(self.rank() == other.rank())
+        assert(self.shape() == other.shape())
+        if data_type == dtype.float32:
+            return tensor(self.dims, self.dtype(), storage_format.dense, self.storage_order(), tencore.div_float(self.data(), other.data()))
+        elif data_type == dtype.float64:
+            return tensor(self.dims, self.dtype(), storage_format.dense, self.storage_order(), tencore.div_float(self.data(), other.data()))
+        else:
+            raise RuntimeError("Data type not supported.")
+
+    """
+    Elementwise multiplication
+    """
+    def __mul__(self, other):
+        data_type = self.dtype()
+        assert(data_type == other.dtype())
+        assert(self.storage_order() == other.storage_order())
+        assert(self.rank() == other.rank())
+        assert(self.shape() == other.shape())
+        if data_type == dtype.float32:
+            return tensor(self.dims, self.dtype(), storage_format.dense, self.storage_order(), tencore.mul_float(self.data(), other.data()))
+        elif data_type == dtype.float64:
+            return tensor(self.dims, self.dtype(), storage_format.dense, self.storage_order(), tencore.mul_float(self.data(), other.data()))
+        else:
+            raise RuntimeError("Data type not supported.")
+
+    """
+        Matrix multiplication and matrix vector multiplication
+    """
+    def __matmul__(self, other):
+        data_type = self.dtype()
+        assert(data_type == other.dtype())
+        assert(self.storage_order() == other.storage_order())
+        r = other.rank()
+        assert(r == 1 or r == 2)
+        assert(self.rank() == 2)
+        assert(self.dim(1) == other.dim(0))
+        if r == 1:
+            new_shape = [other.size()]
+        elif r == 2:
+            new_shape = (self.dim(0), other.dim(1))
+        if data_type == dtype.float32:
+            return tensor(new_shape, data_type, storage_format.dense, self.storage_order(), tencore.mul_float(self.data(), other.data()))
+        elif data_type == dtype.float64:
+            return tensor(new_shape, data_type, storage_format.dense, self.storage_order(), tencore.mul_float(self.data(), other.data()))
+        else:
+            raise RuntimeError("Data type not supported.")
 
     """
     Convert to numpy ndarray
