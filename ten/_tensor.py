@@ -595,88 +595,332 @@ def load(filename, rank, data_type = dtype.float32):
 
 """
 Returns the minimum of a tensor
-def min(x:tensor):
-  rank = x.rank()
-  data_type = x.dtype()
-  if rank == 1:
-    if data_type == dtype.float32:
-      return backend.min_vector_float(x.data()).eval().value()
-    elif data_type == dtype.float64:
-      return backend.min_vector_double(x.data()).eval().value()
-    else:
-      raise RuntimeError("Saving data type not yet supported.")
-  elif rank == 2:
-    if data_type == dtype.float32:
-      return backend.min_matrix_float(x.data()).eval().value()
-    elif data_type == dtype.float64:
-      return backend.min_matrix_double(x.data()).eval().value()
-    else:
-      raise RuntimeError("Saving data type not yet supported.")
-  elif rank == 3:
-    if data_type == dtype.float32:
-      return backend.min_tensor3_float(x.data()).eval().value()
-    elif data_type == dtype.float64:
-      return backend.min_tensor3_double(x.data()).eval().value()
-    else:
-      raise RuntimeError("Saving data type not yet supported.")
-  elif rank == 4:
-    if data_type == dtype.float32:
-      return backend.min_tensor4_float(x.data()).eval().value()
-    elif data_type == dtype.float64:
-      return backend.min_tensor4_double(x.data()).eval().value()
-    else:
-      raise RuntimeError("Saving data type not yet supported.")
-  elif rank == 5:
-    if data_type == dtype.float32:
-      return backend.min_tensor5_float(x.data()).eval().value()
-    elif data_type == dtype.float64:
-      return backend.min_tensor5_double(x.data()).eval().value()
-    else:
-      raise RuntimeError("Saving data type not yet supported.")
-  else:
-    raise RuntimeError(f"Tensor of rank {rank} not supported.")
 """
+def min(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        return tencore.min_float(x.data()).value()
+    elif data_type == dtype.float64:
+        return tencore.min_double(x.data()).value()
+    else:
+        raise RuntimeError("Data type not yet supported.")
 
 """
 Returns the maximum of a tensor
-def max(x:tensor):
-  rank = x.rank()
-  data_type = x.dtype()
-  if rank == 1:
-    if data_type == dtype.float32:
-      return backend.max_vector_float(x.data()).eval().value()
-    elif data_type == dtype.float64:
-      return backend.max_vector_double(x.data()).eval().value()
-    else:
-      raise RuntimeError("Saving data type not yet supported.")
-  elif rank == 2:
-    if data_type == dtype.float32:
-      return backend.max_matrix_float(x.data()).eval().value()
-    elif data_type == dtype.float64:
-      return backend.max_matrix_double(x.data()).eval().value()
-    else:
-      raise RuntimeError("Saving data type not yet supported.")
-  elif rank == 3:
-    if data_type == dtype.float32:
-      return backend.max_tensor3_float(x.data()).eval().value()
-    elif data_type == dtype.float64:
-      return backend.max_tensor3_double(x.data()).eval().value()
-    else:
-      raise RuntimeError("Saving data type not yet supported.")
-  elif rank == 4:
-    if data_type == dtype.float32:
-      return backend.max_tensor4_float(x.data()).eval().value()
-    elif data_type == dtype.float64:
-      return backend.max_tensor4_double(x.data()).eval().value()
-    else:
-      raise RuntimeError("Saving data type not yet supported.")
-  elif rank == 5:
-    if data_type == dtype.float32:
-      return backend.max_tensor5_float(x.data()).eval().value()
-    elif data_type == dtype.float64:
-      return backend.max_tensor5_double(x.data()).eval().value()
-    else:
-      raise RuntimeError("Saving data type not yet supported.")
-  else:
-    raise RuntimeError(f"Tensor of rank {rank} not supported.")
 """
+def max(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        return tencore.max_float(x.data()).value()
+    elif data_type == dtype.float64:
+        return tencore.max_double(x.data()).value()
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+"""
+Returns the mean of a tensor
+"""
+def mean(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        return tencore.mean_float(x.data()).value()
+    elif data_type == dtype.float64:
+        return tencore.mean_double(x.data()).value()
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+
+"""
+Returns the sum of a tensor
+"""
+def sum(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        return tencore.sum_float(x.data()).value()
+    elif data_type == dtype.float64:
+        return tencore.sum_double(x.data()).value()
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+"""
+Returns the cumulative sum of a tensor
+"""
+def cum_sum(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        y = tencore.cum_sum_float(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    elif data_type == dtype.float64:
+        y = tencore.cum_sum_double(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+"""
+Returns the product of the elements of a tensor
+"""
+def prod(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        return tencore.prod_float(x.data()).value()
+    elif data_type == dtype.float64:
+        return tencore.prod_double(x.data()).value()
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+"""
+Returns the square root of a tensor
+"""
+def sqrt(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        y = tencore.sqrt_float(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    elif data_type == dtype.float64:
+        y = tencore.sqrt_double(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+"""
+Returns the square of a tensor
+"""
+def sqr(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        y = tencore.sqr_float(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    elif data_type == dtype.float64:
+        y = tencore.sqr_double(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+
+"""
+Returns the absolute value of a tensor
+"""
+def abs(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        y = tencore.abs_float(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    elif data_type == dtype.float64:
+        y = tencore.abs_double(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+
+"""
+Returns the sin of a tensor
+"""
+def sin(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        y = tencore.sin_float(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    elif data_type == dtype.float64:
+        y = tencore.sin_double(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+
+
+"""
+Returns the sinh of a tensor
+"""
+def sinh(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        y = tencore.sinh_float(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    elif data_type == dtype.float64:
+        y = tencore.sinh_double(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+"""
+Returns the asin of a tensor
+"""
+def asin(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        y = tencore.asin_float(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    elif data_type == dtype.float64:
+        y = tencore.asin_double(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+"""
+Returns the cos of a tensor
+"""
+def cos(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        y = tencore.cos_float(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    elif data_type == dtype.float64:
+        y = tencore.cos_double(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+"""
+Returns the cosh of a tensor
+"""
+def cosh(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        y = tencore.cosh_float(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    elif data_type == dtype.float64:
+        y = tencore.cosh_double(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+"""
+Returns the acos of a tensor
+"""
+def acos(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        y = tencore.acos_float(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    elif data_type == dtype.float64:
+        y = tencore.acos_double(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+"""
+Returns the tan of a tensor
+"""
+def tan(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        y = tencore.tan_float(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    elif data_type == dtype.float64:
+        y = tencore.tan_double(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+"""
+Returns the tanh of a tensor
+"""
+def tanh(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        y = tencore.tanh_float(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    elif data_type == dtype.float64:
+        y = tencore.tanh_double(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+"""
+Returns the atan of a tensor
+"""
+def atan(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        y = tencore.atan_float(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    elif data_type == dtype.float64:
+        y = tencore.atan_double(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+"""
+Returns the exp of a tensor
+"""
+def exp(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        y = tencore.exp_float(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    elif data_type == dtype.float64:
+        y = tencore.exp_double(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+"""
+Returns the log of a tensor
+"""
+def log(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        y = tencore.log_float(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    elif data_type == dtype.float64:
+        y = tencore.log_double(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+"""
+Returns the log10 of a tensor
+"""
+def log10(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        y = tencore.log10_float(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    elif data_type == dtype.float64:
+        y = tencore.log10_double(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+"""
+Returns the floor of a tensor
+"""
+def floor(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        y = tencore.floor_float(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    elif data_type == dtype.float64:
+        y = tencore.floor_double(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+"""
+Returns the ceil of a tensor
+"""
+def ceil(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        y = tencore.ceil_float(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    elif data_type == dtype.float64:
+        y = tencore.ceil_double(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+"""
+Returns the pow of a tensor
+"""
+def pow(x : tensor, n):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        y = tencore.pow_float(x.data(), n)
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    elif data_type == dtype.float64:
+        y = tencore.pow_double(x.data(), n)
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
