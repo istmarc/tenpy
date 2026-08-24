@@ -66,3 +66,29 @@ def svd(a : tensor):
     else:
         raise RuntimeError("Data type not supported.")
 
+"""
+Least squares, solve Ax=b
+"""
+def solve(A: tensor, b : tensor, method = "qr"):
+    assert isinstance(A, tensor)
+    assert isinstance(b, tensor)
+    assert A.dtype() == b.dtype()
+    assert method == "qr" or method == "lu" or method == "svd"
+    data_type = A.dtype()
+    if data_type == dtype.float32:
+        if method == "qr":
+            return tencore.lsqr_float(A.data(), b.data())
+        elif method == "lu":
+            return tencore.lslu_float(A.data(), b.data())
+        else:
+            return tencore.lssvd_float(A.data(), b.data())
+    elif data_type == dtype.float64:
+        if method == "qr":
+            return tencore.lsqr_double(A.data(), b.data())
+        elif method == "lu":
+            return tencore.lslu_double(A.data(), b.data())
+        else:
+            return tencore.lssvd_double(A.data(), b.data())
+    else:
+        raise RuntimeError("Data type not supported.")
+
