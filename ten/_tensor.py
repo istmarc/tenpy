@@ -990,6 +990,36 @@ def ceil(x : tensor):
     else:
         raise RuntimeError("Data type not yet supported.")
 
+
+"""
+Reshape a tensor
+"""
+def reshape(x : tensor, shape):
+    # TODO Check size of x and shape
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        y = tencore.reshape_float(x.data(), shape)
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    elif data_type == dtype.float64:
+        y = tencore.reshape_double(x.data(), shape)
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
+"""
+Flatten a tensor
+"""
+def flatten(x : tensor):
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        y = tencore.flatten_float(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    elif data_type == dtype.float64:
+        y = tencore.flatten_double(x.data())
+        return tensor(y.shape(), data_type, y.format(), y.storage_order(), y)
+    else:
+        raise RuntimeError("Data type not yet supported.")
+
 """
 Returns the pow of a tensor
 """
