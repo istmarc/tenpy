@@ -94,9 +94,61 @@ def _getitem_from(t, index):
     else:
         raise RuntimeError("Data type not supported.")
 
+"""
+Create a column
+"""
+
+class col(object):
+
+    def __init__(self, t, index):
+        self.t = t.col(index)
+
+    def dtype(self):
+        return self.t.dtype()
+
+    def shape(self):
+        return self.t.shape()
+
+    def __repr__(self):
+        return repr(self.t)
+
+    def __getitem__(self, index):
+        if index >= self.t.size():
+            raise StopIteration()
+        return self.t[index]
+
+    def __setitem__(self, index, value):
+        self.t.__setitem__(index, value)
 
 """
-Create a tensor from shape (rank), data type, and storage order
+Create a row
+"""
+
+class row(object):
+
+    def __init__(self, t, index):
+        self.t = t.row(index)
+
+    def dtype(self):
+        return self.t.dtype()
+
+    def shape(self):
+        return self.t.shape()
+
+    def __repr__(self):
+        return repr(self.t)
+
+    def __getitem__(self, index):
+        if index >= self.t.size():
+            raise StopIteration()
+        return self.t[index]
+
+    def __setitem__(self, index, value):
+        self.t.__setitem__(index, value)
+
+
+"""
+Create a tensor from shape, data type, and storage order
 """
 
 
@@ -151,6 +203,12 @@ class tensor(object):
 
     def storage_order(self):
         return self.t.storage_order()
+
+    def col(self, index):
+        return self.t.col(index)
+
+    def row(self, index):
+        return self.t.row(index)
 
     def __repr__(self):
         return repr(self.t)
