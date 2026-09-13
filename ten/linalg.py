@@ -67,7 +67,7 @@ def svd(a : tensor):
         raise RuntimeError("Data type not supported.")
 
 """
-Least squares, solve Ax=b
+Linear system, solve Ax=b
 """
 def solve(A: tensor, b : tensor, method = "qr"):
     assert isinstance(A, tensor)
@@ -77,18 +77,35 @@ def solve(A: tensor, b : tensor, method = "qr"):
     data_type = A.dtype()
     if data_type == dtype.float32:
         if method == "qr":
-            return tencore.lsqr_float(A.data(), b.data())
+            return tencore.ls_qr_float(A.data(), b.data())
         elif method == "lu":
-            return tencore.lslu_float(A.data(), b.data())
+            return tencore.ls_lu_float(A.data(), b.data())
         else:
-            return tencore.lssvd_float(A.data(), b.data())
+            return tencore.ls_svd_float(A.data(), b.data())
     elif data_type == dtype.float64:
         if method == "qr":
-            return tencore.lsqr_double(A.data(), b.data())
+            return tencore.ls_qr_double(A.data(), b.data())
         elif method == "lu":
-            return tencore.lslu_double(A.data(), b.data())
+            return tencore.ls_lu_double(A.data(), b.data())
         else:
-            return tencore.lssvd_double(A.data(), b.data())
+            return tencore.ls_svd_double(A.data(), b.data())
+    else:
+        raise RuntimeError("Data type not supported.")
+
+"""
+Least squares, min_beta ||y - X\beta||
+"""
+def lsqr(X : tensor, y : tensor, method = "qr"):
+    assert isinstance(X, tensor)
+    assert isinstance(y, tensor)
+    assert method == "qr"
+    data_type = X.dtype()
+    if data_type == dtype.float32:
+        beta = tencore.lsqr_float(X.data(), y.data(), tencore.ls_method.qr)
+        return tensor(beta.shape(), data_type, beta.format(), beta.storage_order(), beta)
+    elif data_type == dtype.float64:
+        beta = tencore.lsqr_double(X.data(), y.data(), tencore.ls_method.qr)
+        return tensor(beta.shape(), data_type, beta.format(), beta.storage_order(), beta)
     else:
         raise RuntimeError("Data type not supported.")
 
