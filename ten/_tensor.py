@@ -299,7 +299,7 @@ class tensor(object):
         assert(self.rank() == 2)
         assert(self.dim(1) == other.dim(0))
         if r == 1:
-            new_shape = [other.size()]
+            new_shape = [self.dim(0)]
         elif r == 2:
             new_shape = (self.dim(0), other.dim(1))
         if data_type == dtype.float32:
