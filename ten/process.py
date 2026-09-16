@@ -74,21 +74,21 @@ Brownian motion paths
 def brownian_motion_paths(n : int, t : int, s : tensor = None, data_type = dtype.float32) -> tensor:
     if s is None:
         if data_type == dtype.float32:
-            t, w = tencore.brownian_motion_all_paths_float(n, t)
-            return tensor(t.shape(), data_type, t.format(), t.storage_order(), t), tensor(w.shape(), data_type, w.format(), w.storage_order(), w)
+            index, w = tencore.brownian_motion_all_paths_float(n, t)
+            return tensor(index.shape(), data_type, index.format(), index.storage_order(), index), tensor(w.shape(), data_type, w.format(), w.storage_order(), w)
         elif data_type == dtype.float64:
-            t, w = tencore.brownian_motion_all_paths_double(n, t)
-            return tensor(t.shape(), data_type, t.format(), t.storage_order(), t), tensor(w.shape(), data_type, w.format(), w.storage_order(), w)
+            index, w = tencore.brownian_motion_all_paths_double(n, t)
+            return tensor(index.shape(), data_type, index.format(), index.storage_order(), index), tensor(w.shape(), data_type, w.format(), w.storage_order(), w)
         else:
             raise RuntimeError("Data type not supported.")
     else:
         assert s.rank() == 2
         if data_type == dtype.float32:
-            t, w = tencore.brownian_motion_paths_float(s.data(), n, t)
-            return tensor(t.shape(), data_type, t.format(), t.storage_order(), t), tensor(w.shape(), data_type, w.format(), w.storage_order(), w)
+            index, w = tencore.brownian_motion_paths_float(s.data(), n, t)
+            return tensor(index.shape(), data_type, index.format(), index.storage_order(), index), tensor(w.shape(), data_type, w.format(), w.storage_order(), w)
         elif data_type == dtype.float64:
-            t, w = tencore.brownian_motion_paths_float(s.data(), n, t)
-            return tensor(t.shape(), data_type, t.format(), t.storage_order(), t), tensor(w.shape(), data_type, w.format(), w.storage_order(), w)
+            index, w = tencore.brownian_motion_paths_float(s.data(), n, t)
+            return tensor(index.shape(), data_type, index.format(), index.storage_order(), index), tensor(w.shape(), data_type, w.format(), w.storage_order(), w)
         else:
             raise RuntimeError("Data type not supported.")
 
