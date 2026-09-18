@@ -34,6 +34,8 @@ def _get_tensor(data_type, shape, sformat, order, data="auto"):
             return tencore.tensor_float.make(shape, sformat, False, order)
         elif data_type == dtype.float64:
             return tencore.tensor_double.make(shape, sformat, False, order)
+        elif data_type == dtype.uint64:
+            return tencore.tensor_uint64.make(shape, sformat, False, order)
         else:
             raise RuntimeError("Data type not yet supported.")
     else:
@@ -62,7 +64,7 @@ def _get_diagonal(data_type, shape, order, data="auto"):
 
 def _make_tuple_shape(dims):
     if isinstance(dims, int):
-        return tuple([dims])
+        return [dims]
     else:
         return tuple(dims)
 
@@ -84,6 +86,8 @@ def _to_numpy_data_type(data_type):
     else:
         raise RuntimeError("Data type not supported.")
 
+def _get_linear_index(t, indices):
+    return tencore.linear_index(t.strides(), indices)
 
 def _getitem_from(t, index):
     data_type = t.data_type()
@@ -219,18 +223,15 @@ class tensor(object):
                 raise StopIteration()
             return self.t[index]
         else:
-            _getitem_from(self.t, index)
+            idx = _get_linear_index(self.t, index)
+            return self.t[idx]
 
     def __setitem__(self, index, value):
         if isinstance(index, int):
             self.t.__setitem__(index, value)
         else:
-            if self.data_type == tencore.data_type.float32:
-                tencore.tensor_float_set(self.t, index, value)
-            elif self.data_type == tencore.data_type.float64:
-                tencore.tensor_double_set(self.t, index, value)
-            else:
-                raise RuntimeError("Data type not supported.")
+            idx = _get_linear_index(self.t, index)
+            self.t.__setitem__(idx, value)
 
     def __add__(self, other):
         data_type = self.dtype()
