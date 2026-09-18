@@ -5,5 +5,6 @@ from .sort import *
 from .math import *
 from .mcmc import *
 from .process import *
+from .cmb import *
 from .ml import *
 

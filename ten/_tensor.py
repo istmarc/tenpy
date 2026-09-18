@@ -83,6 +83,14 @@ def _to_numpy_data_type(data_type):
         return np.float32
     elif data_type == dtype.float64:
         return np.float64
+    elif data_type == dtype.int32:
+        return np.int32
+    elif data_type == dtype.int64:
+        return np.int64
+    elif data_type == dtype.uint32:
+        return np.uint32
+    elif data_type == dtype.uint64:
+        return np.uint64
     else:
         raise RuntimeError("Data type not supported.")
 
@@ -333,7 +341,8 @@ class tensor(object):
                 cols = self.dim(1)
                 for i in range(rows):
                     for j in range(cols):
-                        array[i, j] = _getitem_from(self.t, [i, j])
+                        idx = _get_linear_index(self.t, (i,j))
+                        array[i, j] = self.t[idx]
             elif self.dims_rank == 3:
                 # 3d tensor
                 I = self.dim(0)
@@ -342,7 +351,8 @@ class tensor(object):
                 for i in range(I):
                     for j in range(J):
                         for k in range(K):
-                            array[i, j, k] = _getitem_from(self.t, [i, j, k])
+                            idx = _get_linear_index(self.t, (i,j,k))
+                            array[i, j, k] = self.t[idx]
             elif self.dims_rank == 4:
                 # 4d tensor
                 I = self.dim(0)
@@ -353,7 +363,8 @@ class tensor(object):
                     for j in range(J):
                         for k in range(K):
                             for l in range(L):
-                                array[i, j, k, l] = _getitem_from(self.t, [i, j, k, l])
+                                idx = _get_linear_index(self.t, (i,j,k,l))
+                                array[i, j, k, l] = self.t[idx]
             elif self.dims_rank == 5:
                 I = self.dim(0)
                 J = self.dim(1)
@@ -365,9 +376,8 @@ class tensor(object):
                         for k in range(K):
                             for l in range(L):
                                 for m in range(M):
-                                    array[i, j, k, l, m] = _getitem_from(
-                                        self.t, [i, j, k, l, m]
-                                    )
+                                    idx = _get_linear_index(self.t, (i,j,k,l,m))
+                                    array[i, j, k, l, m] = self.t[idx]
         return array
 
 
@@ -376,7 +386,7 @@ Create a vector from shape and optional data type
 """
 
 
-def vector(size, data_type=dtype.float32):
+def vector(size, data_type=dtype.float32) -> tensor:
     assert isinstance(size, int)
     return tensor((size), data_type)
 
@@ -386,7 +396,7 @@ Create a matrix from shape and optional data type
 """
 
 
-def matrix(rows, cols, data_type=dtype.float32):
+def matrix(rows, cols, data_type=dtype.float32) -> tensor:
     assert isinstance(rows, int)
     assert isinstance(cols, int)
     return tensor((rows, cols), data_type)
@@ -487,7 +497,8 @@ class diagonal(object):
                 cols = self.dim(1)
                 for i in range(rows):
                     for j in range(cols):
-                        array[i, j] = _getitem_from(self.t, [i, j])
+                        idx = _get_linear_index(t, (i,j))
+                        array[i, j] = self.t[idx]
         else:
             n = self.size()
             array = np.zeros((n), dtype=np_data_type)
@@ -503,7 +514,7 @@ by default create a col major tensor
 """
 
 
-def from_numpy(array, order=storage_order.col_major):
+def from_numpy(array, order=storage_order.col_major) -> tensor:
     shape = array.shape
     data_type = _from_numpy_data_type(array.dtype)
     t = tensor(shape, data_type, storage_format.dense, order)
@@ -567,9 +578,7 @@ def from_numpy(array, order=storage_order.col_major):
 """
 Returns a tensor of zeros of data_type
 """
-
-
-def zeros(dims, data_type=dtype.float32, order=storage_order.col_major):
+def zeros(dims, data_type=dtype.float32, order=storage_order.col_major) -> tensor:
     shape = _make_tuple_shape(dims)
     sformat = storage_format.dense
     if data_type == dtype.float32:
@@ -587,9 +596,7 @@ def zeros(dims, data_type=dtype.float32, order=storage_order.col_major):
 """
 Returns a tensor of ones of data type
 """
-
-
-def ones(dims, data_type=dtype.float32, order=storage_order.col_major):
+def ones(dims, data_type=dtype.float32, order=storage_order.col_major) -> tensor:
     shape = _make_tuple_shape(dims)
     sformat = storage_format.dense
     if data_type == dtype.float32:
@@ -607,9 +614,7 @@ def ones(dims, data_type=dtype.float32, order=storage_order.col_major):
 """
 Returns a tensor filled with value of data_type
 """
-
-
-def fill(dims, value, data_type=dtype.float32, order=storage_order.col_major):
+def fill(dims, value, data_type=dtype.float32, order=storage_order.col_major) -> tensor:
     shape = _make_tuple_shape(dims)
     sformat = storage_format.dense
     if data_type == dtype.float32:
@@ -627,9 +632,7 @@ def fill(dims, value, data_type=dtype.float32, order=storage_order.col_major):
 """
 Returns a range starting from value
 """
-
-
-def arange(dims, value=0.0, data_type=dtype.float32, order=storage_order.col_major):
+def arange(dims, value=0.0, data_type=dtype.float32, order=storage_order.col_major) -> tensor:
     shape = _make_tuple_shape(dims)
     sformat = storage_format.dense
     if data_type == dtype.float32:
@@ -647,9 +650,7 @@ def arange(dims, value=0.0, data_type=dtype.float32, order=storage_order.col_maj
 """
 Returns a linear tnnsor
 """
-
-
-def linear(dims, start, stop, data_type=dtype.float32, order=storage_order.col_major):
+def linear(dims, start, stop, data_type=dtype.float32, order=storage_order.col_major) -> tensor:
     shape = _make_tuple_shape(dims)
     sformat = storage_format.dense
     if data_type == dtype.float32:
@@ -772,7 +773,7 @@ def mean(x : tensor):
 """
 Returns the sum of a tensor
 """
-def sum(x : tensor):
+def sum(x : tensor) -> tensor:
     data_type = x.dtype()
     if data_type == dtype.float32:
         return tencore.sum_float(x.data()).value()
@@ -784,7 +785,7 @@ def sum(x : tensor):
 """
 Returns the cumulative sum of a tensor
 """
-def cum_sum(x : tensor):
+def cum_sum(x : tensor) -> tensor:
     data_type = x.dtype()
     if data_type == dtype.float32:
         y = tencore.cum_sum_float(x.data())
@@ -810,7 +811,7 @@ def prod(x : tensor):
 """
 Returns the square root of a tensor
 """
-def sqrt(x : tensor):
+def sqrt(x : tensor) -> tensor:
     data_type = x.dtype()
     if data_type == dtype.float32:
         y = tencore.sqrt_float(x.data())
@@ -824,7 +825,7 @@ def sqrt(x : tensor):
 """
 Returns the square of a tensor
 """
-def sqr(x : tensor):
+def sqr(x : tensor) -> tensor:
     data_type = x.dtype()
     if data_type == dtype.float32:
         y = tencore.sqr_float(x.data())
@@ -839,7 +840,7 @@ def sqr(x : tensor):
 """
 Returns the absolute value of a tensor
 """
-def abs(x : tensor):
+def abs(x : tensor) -> tensor:
     data_type = x.dtype()
     if data_type == dtype.float32:
         y = tencore.abs_float(x.data())
@@ -854,7 +855,7 @@ def abs(x : tensor):
 """
 Returns the sin of a tensor
 """
-def sin(x : tensor):
+def sin(x : tensor) -> tensor:
     data_type = x.dtype()
     if data_type == dtype.float32:
         y = tencore.sin_float(x.data())
@@ -870,7 +871,7 @@ def sin(x : tensor):
 """
 Returns the sinh of a tensor
 """
-def sinh(x : tensor):
+def sinh(x : tensor) -> tensor:
     data_type = x.dtype()
     if data_type == dtype.float32:
         y = tencore.sinh_float(x.data())
@@ -884,7 +885,7 @@ def sinh(x : tensor):
 """
 Returns the asin of a tensor
 """
-def asin(x : tensor):
+def asin(x : tensor) -> tensor:
     data_type = x.dtype()
     if data_type == dtype.float32:
         y = tencore.asin_float(x.data())
@@ -898,7 +899,7 @@ def asin(x : tensor):
 """
 Returns the cos of a tensor
 """
-def cos(x : tensor):
+def cos(x : tensor) -> tensor:
     data_type = x.dtype()
     if data_type == dtype.float32:
         y = tencore.cos_float(x.data())
@@ -912,7 +913,7 @@ def cos(x : tensor):
 """
 Returns the cosh of a tensor
 """
-def cosh(x : tensor):
+def cosh(x : tensor) -> tensor:
     data_type = x.dtype()
     if data_type == dtype.float32:
         y = tencore.cosh_float(x.data())
@@ -926,7 +927,7 @@ def cosh(x : tensor):
 """
 Returns the acos of a tensor
 """
-def acos(x : tensor):
+def acos(x : tensor) -> tensor:
     data_type = x.dtype()
     if data_type == dtype.float32:
         y = tencore.acos_float(x.data())
@@ -940,7 +941,7 @@ def acos(x : tensor):
 """
 Returns the tan of a tensor
 """
-def tan(x : tensor):
+def tan(x : tensor) -> tensor:
     data_type = x.dtype()
     if data_type == dtype.float32:
         y = tencore.tan_float(x.data())
@@ -954,7 +955,7 @@ def tan(x : tensor):
 """
 Returns the tanh of a tensor
 """
-def tanh(x : tensor):
+def tanh(x : tensor) -> tensor:
     data_type = x.dtype()
     if data_type == dtype.float32:
         y = tencore.tanh_float(x.data())
@@ -968,7 +969,7 @@ def tanh(x : tensor):
 """
 Returns the atan of a tensor
 """
-def atan(x : tensor):
+def atan(x : tensor) -> tensor:
     data_type = x.dtype()
     if data_type == dtype.float32:
         y = tencore.atan_float(x.data())
@@ -982,7 +983,7 @@ def atan(x : tensor):
 """
 Returns the exp of a tensor
 """
-def exp(x : tensor):
+def exp(x : tensor) -> tensor:
     data_type = x.dtype()
     if data_type == dtype.float32:
         y = tencore.exp_float(x.data())
@@ -996,7 +997,7 @@ def exp(x : tensor):
 """
 Returns the log of a tensor
 """
-def log(x : tensor):
+def log(x : tensor) -> tensor:
     data_type = x.dtype()
     if data_type == dtype.float32:
         y = tencore.log_float(x.data())
@@ -1010,7 +1011,7 @@ def log(x : tensor):
 """
 Returns the log10 of a tensor
 """
-def log10(x : tensor):
+def log10(x : tensor) -> tensor:
     data_type = x.dtype()
     if data_type == dtype.float32:
         y = tencore.log10_float(x.data())
@@ -1024,7 +1025,7 @@ def log10(x : tensor):
 """
 Returns the floor of a tensor
 """
-def floor(x : tensor):
+def floor(x : tensor) -> tensor:
     data_type = x.dtype()
     if data_type == dtype.float32:
         y = tencore.floor_float(x.data())
@@ -1038,7 +1039,7 @@ def floor(x : tensor):
 """
 Returns the ceil of a tensor
 """
-def ceil(x : tensor):
+def ceil(x : tensor) -> tensor:
     data_type = x.dtype()
     if data_type == dtype.float32:
         y = tencore.ceil_float(x.data())
@@ -1053,7 +1054,7 @@ def ceil(x : tensor):
 """
 Reshape a tensor
 """
-def reshape(x : tensor, shape):
+def reshape(x : tensor, shape) -> tensor:
     # TODO Check size of x and shape
     data_type = x.dtype()
     if data_type == dtype.float32:
@@ -1068,7 +1069,7 @@ def reshape(x : tensor, shape):
 """
 Flatten a tensor
 """
-def flatten(x : tensor):
+def flatten(x : tensor) -> tensor:
     data_type = x.dtype()
     if data_type == dtype.float32:
         y = tencore.flatten_float(x.data())
@@ -1082,7 +1083,7 @@ def flatten(x : tensor):
 """
 Returns the pow of a tensor
 """
-def pow(x : tensor, n):
+def pow(x : tensor, n) -> tensor:
     data_type = x.dtype()
     if data_type == dtype.float32:
         y = tencore.pow_float(x.data(), n)
