@@ -250,7 +250,7 @@ class tensor(object):
         if data_type == dtype.float32:
             return tensor(self.dims, self.dtype(), storage_format.dense, self.storage_order(), tencore.add_float(self.data(), other.data()))
         elif data_type == dtype.float64:
-            return tensor(self.dims, self.dtype(), storage_format.dense, self.storage_order(), tencore.add_float(self.data(), other.data()))
+            return tensor(self.dims, self.dtype(), storage_format.dense, self.storage_order(), tencore.add_double(self.data(), other.data()))
         else:
             raise RuntimeError("Data type not supported.")
 
@@ -263,7 +263,7 @@ class tensor(object):
         if data_type == dtype.float32:
             return tensor(self.dims, self.dtype(), storage_format.dense, self.storage_order(), tencore.sub_float(self.data(), other.data()))
         elif data_type == dtype.float64:
-            return tensor(self.dims, self.dtype(), storage_format.dense, self.storage_order(), tencore.sub_float(self.data(), other.data()))
+            return tensor(self.dims, self.dtype(), storage_format.dense, self.storage_order(), tencore.sub_double(self.data(), other.data()))
         else:
             raise RuntimeError("Data type not supported.")
 
@@ -276,7 +276,7 @@ class tensor(object):
         if data_type == dtype.float32:
             return tensor(self.dims, self.dtype(), storage_format.dense, self.storage_order(), tencore.div_float(self.data(), other.data()))
         elif data_type == dtype.float64:
-            return tensor(self.dims, self.dtype(), storage_format.dense, self.storage_order(), tencore.div_float(self.data(), other.data()))
+            return tensor(self.dims, self.dtype(), storage_format.dense, self.storage_order(), tencore.div_double(self.data(), other.data()))
         else:
             raise RuntimeError("Data type not supported.")
 
@@ -292,7 +292,7 @@ class tensor(object):
         if data_type == dtype.float32:
             return tensor(self.dims, self.dtype(), storage_format.dense, self.storage_order(), tencore.mul_float(self.data(), other.data()))
         elif data_type == dtype.float64:
-            return tensor(self.dims, self.dtype(), storage_format.dense, self.storage_order(), tencore.mul_float(self.data(), other.data()))
+            return tensor(self.dims, self.dtype(), storage_format.dense, self.storage_order(), tencore.mul_double(self.data(), other.data()))
         else:
             raise RuntimeError("Data type not supported.")
 
@@ -314,7 +314,7 @@ class tensor(object):
         if data_type == dtype.float32:
             return tensor(new_shape, data_type, storage_format.dense, self.storage_order(), tencore.mul_float(self.data(), other.data()))
         elif data_type == dtype.float64:
-            return tensor(new_shape, data_type, storage_format.dense, self.storage_order(), tencore.mul_float(self.data(), other.data()))
+            return tensor(new_shape, data_type, storage_format.dense, self.storage_order(), tencore.mul_double(self.data(), other.data()))
         else:
             raise RuntimeError("Data type not supported.")
 

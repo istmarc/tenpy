@@ -66,11 +66,11 @@ class linear_model(object):
 
     def coef(self):
         beta = self.model.coef()
-        return tensor(beta.shape(), self.data_type, beta.format(), beta.storage_order(), beta)
+        return tensor(beta.shape(), beta.data_type(), beta.format(), beta.storage_order(), beta)
 
-    def fitted():
+    def fitted(self):
         yhat = self.model.fitted()
-        return tensor(yhat.shape(), self.data_type, yhat.format(), yhat.storage_order(), yhat)
+        return tensor(yhat.shape(), yhat.data_type(), yhat.format(), yhat.storage_order(), yhat)
 
 def _get_polyreg(data_type, n):
     if data_type == dtype.float32:
