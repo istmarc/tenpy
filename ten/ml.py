@@ -76,6 +76,10 @@ class linear_model(object):
         yhat = self.model.fitted()
         return tensor(yhat.shape(), yhat.data_type(), yhat.format(), yhat.storage_order(), yhat)
 
+    def predict(self, x):
+        yhat = self.model.predict(x.data())
+        return tensor(yhat.shape(), yhat.data_type(), yhat.format(), yhat.storage_order(), yhat)
+
 def _get_polyreg(data_type, n):
     if data_type == dtype.float32:
         return tencore.polyreg_float(n)
@@ -107,5 +111,9 @@ class polyreg(object):
 
     def fitted(self):
         yhat = self.model.fitted()
+        return tensor(yhat.shape(), yhat.data_type(), yhat.format(), yhat.storage_order(), yhat)
+
+    def predict(self, x):
+        yhat = self.model.predict(x.data())
         return tensor(yhat.shape(), yhat.data_type(), yhat.format(), yhat.storage_order(), yhat)
 
