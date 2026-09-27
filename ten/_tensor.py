@@ -575,6 +575,10 @@ def from_numpy(array, order=storage_order.col_major) -> tensor:
     return t
 
 
+def to_tensor(x):
+    return tensor(x.shape(), x.data_type(), x.format(), x.storage_order(), x)
+
+
 """
 Returns a tensor of zeros of data_type
 """
