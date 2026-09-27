@@ -1,5 +1,6 @@
 import tencore
 
+from tencore import nls_method
 from ten import dtype, storage_format, storage_order, tensor, diagonal
 
 """
@@ -106,6 +107,31 @@ def lsqr(X : tensor, y : tensor, method = "qr"):
     elif data_type == dtype.float64:
         beta = tencore.lsqr_double(X.data(), y.data(), tencore.ls_method.qr)
         return tensor(beta.shape(), data_type, beta.format(), beta.storage_order(), beta)
+    else:
+        raise RuntimeError("Data type not supported.")
+
+"""
+Nonlinear least squares, min||f(x,beta)-y||2
+"""
+def nls(f, x: tensor, y:tensor, jacobian, beta0 = None, n = 0, method = nls_method.gauss_newton, itermax = 1000, eps = 1e-3, verbose = False):
+    assert isinstance(x, tensor)
+    assert isinstance(y, tensor)
+    assert method == nls_method.gauss_newton
+    data_type = x.dtype()
+    if data_type == dtype.float32:
+        if beta0 is None:
+            options = tencore.make_nls_options_float(method, n, itermax, eps, verbose)
+        else:
+            options = tencore.make_nls_options_beta0_float(method, n, beta0.data(), itermax, eps, verbose)
+        beta = tencore.nls_float(f, x.data(), y.data(), jacobian, options)
+        return tensor(beta.shape(), beta.data_type(), beta.format(), beta.storage_order(), beta)
+    elif data_type == dtype.float64:
+        if beta0 is None:
+            options = tencore.make_nls_options_double(method, n, itermax, eps, verbose)
+        else:
+            options = tencore.make_nls_options_beta0_double(method, n, beta0.data(), itermax, eps, verbose)
+        beta = tencore.nls_double(f, x.data(), y.data(), jacobian, options)
+        return tensor(beta.shape(), beta.data_type(), beta.format(), beta.storage_order(), beta)
     else:
         raise RuntimeError("Data type not supported.")
 
