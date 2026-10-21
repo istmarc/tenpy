@@ -8,3 +8,4 @@ from .process import *
 from .cmb import *
 from .ml import *
 from .graph import *
+from .diffeq import *
